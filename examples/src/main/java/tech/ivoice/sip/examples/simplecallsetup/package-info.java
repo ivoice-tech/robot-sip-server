@@ -1,5 +1,5 @@
 /**
- * Description from original NUST simplecallsetup example
+ * Description from original NIST simplecallsetup example
  * <p>
  * The program Shootist.java (named after a famous John Wayne movie),
  * is a skeleton UAC.
