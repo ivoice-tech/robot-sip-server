@@ -69,6 +69,12 @@ Implementation is very simple, because we implemented only needed SIP processing
 
 See examples module in the repository.
 
+# Contributing
+
+Project is hosted on gitlab: https://gitlab.com/ivoice-oss/robot-sip-server
+
+Github repository is mirror.
+
 # Reference
 
 - [vert.x](https://vertx.io/)

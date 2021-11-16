@@ -28,9 +28,7 @@
     <inceptionYear>2021</inceptionYear>
 
     <scm>
-        <url>https://github.com/netty/netty</url>
-        <connection>scm:git:git://github.com/netty/netty.git</connection>
-        <developerConnection>scm:git:ssh://git@github.com/netty/netty.git</developerConnection>
+        <url>https://gitlab.com/ivoice-oss/robot-sip-server</url>
         <tag>HEAD</tag>
     </scm>
 
