@@ -69,10 +69,6 @@ Implementation is very simple, because we implemented only needed SIP processing
 
 See examples module in the repository.
 
-## TODO
-
-- [ ] releasing resources
-
 # Reference
 
 - [vert.x](https://vertx.io/)
