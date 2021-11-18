@@ -21,8 +21,8 @@
 
     <licenses>
         <license>
-            <name>GNU Affero General Public License v3.0</name>
-            <url>https://www.gnu.org/licenses/agpl-3.0.txt</url>
+            <name>MIT License</name>
+            <url>https://spdx.org/licenses/MIT.htmlt</url>
         </license>
     </licenses>
     <inceptionYear>2021</inceptionYear>
