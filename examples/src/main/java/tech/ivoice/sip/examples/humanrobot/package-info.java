@@ -7,4 +7,4 @@
  * Messaging inside dialog implemented using SIP MESSAGE.
  * In real world, instead of SIP messages it would be voice messages.
  */
-package tech.ivoice.sip.examples.robot;
+package tech.ivoice.sip.examples.humanrobot;

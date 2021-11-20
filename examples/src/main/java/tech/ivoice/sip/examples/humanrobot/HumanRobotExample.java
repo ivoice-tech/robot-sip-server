@@ -1,4 +1,4 @@
-package tech.ivoice.sip.examples.robot;
+package tech.ivoice.sip.examples.humanrobot;
 
 import gov.nist.javax.sip.address.AddressFactoryImpl;
 import io.smallrye.mutiny.Uni;
