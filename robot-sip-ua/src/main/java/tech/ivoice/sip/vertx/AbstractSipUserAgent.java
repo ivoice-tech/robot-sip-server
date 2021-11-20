@@ -3,6 +3,7 @@ package tech.ivoice.sip.vertx;
 import gov.nist.javax.sip.address.AddressFactoryImpl;
 import gov.nist.javax.sip.header.CallID;
 import gov.nist.javax.sip.header.HeaderFactoryImpl;
+import gov.nist.javax.sip.header.Via;
 import gov.nist.javax.sip.message.MessageFactoryImpl;
 import gov.nist.javax.sip.message.SIPMessage;
 import gov.nist.javax.sip.message.SIPRequest;
@@ -428,18 +429,17 @@ public abstract class AbstractSipUserAgent<T> extends AbstractVerticle {
         @Override
         public void send(SIPRequest request) {
             SipURI target = (SipURI) request.getTo().getAddress().getURI();
-            send(request, target);
+            send(request, target.getPort(), target.getHost());
         }
 
         @Override
         public void send(SIPResponse response) {
-            // response.from equals to request.from (address where need to send response)
-            SipURI target = (SipURI) response.getFrom().getAddress().getURI();
-            send(response, target);
+            Via requestSentVia = response.getTopmostVia();
+            send(response, requestSentVia.getPort(), requestSentVia.getHost());
         }
 
-        private void send(SIPMessage message, SipURI target) {
-            this.socket.send(message.encode(), target.getPort(), target.getHost())
+        private void send(SIPMessage message, int port, String host) {
+            this.socket.send(message.encode(), port, host)
                 .subscribe()
                 .with(success -> {
                 });
