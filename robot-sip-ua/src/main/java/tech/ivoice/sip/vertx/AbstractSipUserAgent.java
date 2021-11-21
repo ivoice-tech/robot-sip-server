@@ -58,7 +58,7 @@ public abstract class AbstractSipUserAgent<T> extends AbstractVerticle {
 
     // https://datatracker.ietf.org/doc/html/rfc3261#section-8.1.1.7
     private static final String BRANCH_MAGIC_COOKIE = "z9hG4bK-";
-    private static Pattern SDP_ATTR_PAYLOAD_TYPE_PATTERN = Pattern.compile("rtpmap:(\\d+)");
+    private static final Pattern SDP_ATTR_PAYLOAD_TYPE_PATTERN = Pattern.compile("rtpmap:(\\d+)");
 
     private final Transport transport;
 
