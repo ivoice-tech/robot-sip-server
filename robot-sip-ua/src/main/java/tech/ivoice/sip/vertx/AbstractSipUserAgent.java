@@ -28,13 +28,9 @@ import javax.sip.message.MessageFactory;
 import javax.sip.message.Request;
 import javax.sip.message.Response;
 import java.text.ParseException;
-import java.time.Instant;
 import java.util.*;
 import java.util.function.Supplier;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
-import static java.lang.String.format;
 import static tech.ivoice.javax.sip.SipClientTransaction.MAX_FORWARDS;
 
 /**
@@ -58,7 +54,6 @@ public abstract class AbstractSipUserAgent<T> extends AbstractVerticle {
 
     // https://datatracker.ietf.org/doc/html/rfc3261#section-8.1.1.7
     private static final String BRANCH_MAGIC_COOKIE = "z9hG4bK-";
-    private static final Pattern SDP_ATTR_PAYLOAD_TYPE_PATTERN = Pattern.compile("rtpmap:(\\d+)");
 
     private final Transport transport;
 
@@ -152,7 +147,7 @@ public abstract class AbstractSipUserAgent<T> extends AbstractVerticle {
         return dialog.createProvisionalResponse(Response.TRYING);
     }
 
-    protected final SIPResponse createOkWithSdp(String callId, int rtpPort, List<String> sdpAttributes) {
+    protected final SIPResponse createOk(String callId, String sdp) {
         SipDialog<T> dialog = findDialog(callId);
         SIPRequest lastRequest = dialog.getLastRequest();
         if (!lastRequest.getMethod().equals(Request.INVITE)) {
@@ -161,38 +156,7 @@ public abstract class AbstractSipUserAgent<T> extends AbstractVerticle {
 
         try {
             ContentTypeHeader contentTypeHeader = headerFactory.createContentTypeHeader("application", "sdp");
-
-            // origin https://datatracker.ietf.org/doc/html/rfc4566#section-5.2
-            String username = ((SipURI) lastRequest.getTo().getAddress().getURI()).getUser();
-            long sessId = Instant.now().getEpochSecond();
-            long sessVer = Instant.now().getEpochSecond();
-            String netType = "IN";
-            String addrType = "IP4";
-            String addr = config.getHost();
-            String origin = format("o=%s %s %s %s %s %s", username, sessId, sessVer, netType, addrType, addr);
-
-            // connection data https://datatracker.ietf.org/doc/html/rfc4566#section-5.7
-            String connectionData = format("c=%s %s %s", netType, addrType, addr);
-
-            // https://datatracker.ietf.org/doc/html/rfc4566#section-5.14  m=<media> <port> <proto> <fmt>
-            String formatIds = sdpAttributes.stream()
-                .filter(attr -> attr.contains("rtpmap"))
-                .map(SDP_ATTR_PAYLOAD_TYPE_PATTERN::matcher)
-                .map(matcher -> matcher.results().map(m -> m.group(1)).findFirst().orElseThrow())
-                .collect(Collectors.joining(" "));
-            String mediaDescriptions = format("m=audio %s RTP/AVP %s", rtpPort, formatIds);
-
-            String sdpData = String.join(
-                "\r\n",
-                "v=0",
-                origin,
-                "s=-",
-                connectionData,
-                "t=0 0",
-                mediaDescriptions,
-                String.join("\r\n", sdpAttributes)
-            );
-            byte[] contents = sdpData.getBytes();
+            byte[] contents = sdp.getBytes();
             SIPResponse response = dialog.createSuccessResponse(() -> "server-" + idGenerator.get());
             response.setContent(contents, contentTypeHeader);
             return response;

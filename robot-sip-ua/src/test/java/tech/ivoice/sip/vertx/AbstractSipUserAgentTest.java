@@ -13,8 +13,6 @@ import javax.sip.address.AddressFactory;
 import javax.sip.address.SipURI;
 import javax.sip.message.Response;
 import java.text.ParseException;
-import java.util.Arrays;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -50,12 +48,20 @@ class AbstractSipUserAgentTest {
         SipURI targetSipUri = addressFactory.createSipURI("Server", "127.0.0.2:5082");
         SIPRequest invite = sipVerticle.createInvite("Client", targetSipUri);
         sipVerticle.onRequestReceived(invite);
-        List<String> sdpAttributes = Arrays.asList("a=rtpmap:0 PCMU/8000", "a=rtpmap:8 PCMA/8000", "a=ptime:20");
-        SIPResponse ok = sipVerticle.createOkWithSdp(invite.getCallId().getCallId(), 8000, sdpAttributes);
+        String sdp = "v=0\n" +
+            "o=robot 1637391494 1637391495 IN IP4 192.168.1.3\n" +
+            "s=robot\n" +
+            "c=IN IP4 192.168.1.3\n" +
+            "t=0 0\n" +
+            "m=audio 30832 RTP/AVP 0 101\n" +
+            "a=rtpmap:0 PCMU/8000\n" +
+            "a=rtpmap:101 telephone-event/8000\n" +
+            "a=fmtp:101 0-16\n" +
+            "a=ptime:20";
+        SIPResponse ok = sipVerticle.createOk(invite.getCallId().getCallId(), sdp);
 
         assertEquals(new ContentType("application", "sdp"), ok.getContentTypeHeader());
         String content = ok.getMessageContent();
-//        System.out.println(content);
         assertFalse(content.isBlank());
     }
 
