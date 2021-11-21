@@ -31,6 +31,8 @@ import java.text.ParseException;
 import java.time.Instant;
 import java.util.*;
 import java.util.function.Supplier;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 import static tech.ivoice.javax.sip.SipClientTransaction.MAX_FORWARDS;
@@ -56,6 +58,7 @@ public abstract class AbstractSipUserAgent<T> extends AbstractVerticle {
 
     // https://datatracker.ietf.org/doc/html/rfc3261#section-8.1.1.7
     private static final String BRANCH_MAGIC_COOKIE = "z9hG4bK-";
+    private static Pattern SDP_ATTR_PAYLOAD_TYPE_PATTERN = Pattern.compile("rtpmap:(\\d+)");
 
     private final Transport transport;
 
@@ -149,7 +152,7 @@ public abstract class AbstractSipUserAgent<T> extends AbstractVerticle {
         return dialog.createProvisionalResponse(Response.TRYING);
     }
 
-    protected final SIPResponse createOkWithSdp(String callId, int udpPort) {
+    protected final SIPResponse createOkWithSdp(String callId, int rtpPort, List<String> sdpAttributes) {
         SipDialog<T> dialog = findDialog(callId);
         SIPRequest lastRequest = dialog.getLastRequest();
         if (!lastRequest.getMethod().equals(Request.INVITE)) {
@@ -160,7 +163,7 @@ public abstract class AbstractSipUserAgent<T> extends AbstractVerticle {
             ContentTypeHeader contentTypeHeader = headerFactory.createContentTypeHeader("application", "sdp");
 
             // origin https://datatracker.ietf.org/doc/html/rfc4566#section-5.2
-            String username = ((SipURI)lastRequest.getTo().getAddress().getURI()).getUser();
+            String username = ((SipURI) lastRequest.getTo().getAddress().getURI()).getUser();
             //noinspection UnnecessaryLocalVariable for readability
             String sessId = callId;
             long sessVer = Instant.now().getEpochSecond();
@@ -173,13 +176,12 @@ public abstract class AbstractSipUserAgent<T> extends AbstractVerticle {
             String connectionData = format("c=%s %s %s", netType, addrType, addr);
 
             // https://datatracker.ietf.org/doc/html/rfc4566#section-5.14  m=<media> <port> <proto> <fmt>
-            // TODO sdp formats, telephone-event
-            int pcmuFmt = 0;
-            String mediaDescriptions = format("m=audio %s RTP/AVP %d", udpPort, pcmuFmt);
-
-            // https://datatracker.ietf.org/doc/html/rfc4566#section-6
-            String pcmuAttributes = format("a=rtpmap:%d PCMU/8000", pcmuFmt);
-            String ptime = "a=ptime:20";
+            String formatIds = sdpAttributes.stream()
+                .filter(attr -> attr.contains("rtpmap"))
+                .map(id -> SDP_ATTR_PAYLOAD_TYPE_PATTERN.matcher(id))
+                .map(matcher -> matcher.results().map(m->m.group(1)).findFirst().orElseThrow())
+                .collect(Collectors.joining(" "));
+            String mediaDescriptions = format("m=audio %s RTP/AVP %s", rtpPort, formatIds);
 
             String sdpData = String.join(
                 "\r\n",
@@ -189,8 +191,7 @@ public abstract class AbstractSipUserAgent<T> extends AbstractVerticle {
                 connectionData,
                 "t=0 0",
                 mediaDescriptions,
-                pcmuAttributes,
-                ptime
+                String.join("\r\n", sdpAttributes)
             );
             byte[] contents = sdpData.getBytes();
             SIPResponse response = dialog.createSuccessResponse(() -> "server-" + idGenerator.get());

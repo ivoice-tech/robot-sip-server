@@ -13,6 +13,8 @@ import javax.sip.address.AddressFactory;
 import javax.sip.address.SipURI;
 import javax.sip.message.Response;
 import java.text.ParseException;
+import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -48,10 +50,12 @@ class AbstractSipUserAgentTest {
         SipURI targetSipUri = addressFactory.createSipURI("Server", "127.0.0.2:5082");
         SIPRequest invite = sipVerticle.createInvite("Client", targetSipUri);
         sipVerticle.onRequestReceived(invite);
-        SIPResponse ok = sipVerticle.createOkWithSdp(invite.getCallId().getCallId(), 8000);
+        List<String> sdpAttributes = Arrays.asList("a=rtpmap:0 PCMU/8000", "a=rtpmap:8 PCMA/8000", "a=ptime:20");
+        SIPResponse ok = sipVerticle.createOkWithSdp(invite.getCallId().getCallId(), 8000, sdpAttributes);
 
         assertEquals(new ContentType("application", "sdp"), ok.getContentTypeHeader());
         String content = ok.getMessageContent();
+//        System.out.println(content);
         assertFalse(content.isBlank());
     }
 
