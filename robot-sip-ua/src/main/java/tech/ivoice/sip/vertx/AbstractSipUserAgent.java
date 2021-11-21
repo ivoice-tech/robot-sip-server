@@ -178,8 +178,8 @@ public abstract class AbstractSipUserAgent<T> extends AbstractVerticle {
             // https://datatracker.ietf.org/doc/html/rfc4566#section-5.14  m=<media> <port> <proto> <fmt>
             String formatIds = sdpAttributes.stream()
                 .filter(attr -> attr.contains("rtpmap"))
-                .map(id -> SDP_ATTR_PAYLOAD_TYPE_PATTERN.matcher(id))
-                .map(matcher -> matcher.results().map(m->m.group(1)).findFirst().orElseThrow())
+                .map(SDP_ATTR_PAYLOAD_TYPE_PATTERN::matcher)
+                .map(matcher -> matcher.results().map(m -> m.group(1)).findFirst().orElseThrow())
                 .collect(Collectors.joining(" "));
             String mediaDescriptions = format("m=audio %s RTP/AVP %s", rtpPort, formatIds);
 
