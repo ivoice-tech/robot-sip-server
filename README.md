@@ -69,7 +69,7 @@ Implementation is very simple, because we implemented only needed SIP processing
 
 See examples module in the repository.
 
-Also see example with media (you can call on this robot from softphone and hear phrase):
+Also see example with media (you can call this robot from softphone and hear phrase):
 [example robot announcement](https://github.com/ivoice-tech/example-robot-announcement)
 
 # Contributing
