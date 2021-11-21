@@ -164,8 +164,7 @@ public abstract class AbstractSipUserAgent<T> extends AbstractVerticle {
 
             // origin https://datatracker.ietf.org/doc/html/rfc4566#section-5.2
             String username = ((SipURI) lastRequest.getTo().getAddress().getURI()).getUser();
-            //noinspection UnnecessaryLocalVariable for readability
-            String sessId = callId;
+            long sessId = Instant.now().getEpochSecond();
             long sessVer = Instant.now().getEpochSecond();
             String netType = "IN";
             String addrType = "IP4";
