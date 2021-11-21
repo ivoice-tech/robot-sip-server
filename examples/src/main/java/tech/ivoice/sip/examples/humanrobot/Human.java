@@ -58,7 +58,7 @@ public class Human extends AbstractSipUserAgent<Void> {
     @Override
     protected void onBye(SIPRequest bye) {
         log.info(user + ": robot finished, answering ok.");
-        SIPResponse ok = createSuccessResponse(bye.getCallId().getCallId());
+        SIPResponse ok = createOk(bye.getCallId().getCallId());
         sendResponse(ok);
     }
 

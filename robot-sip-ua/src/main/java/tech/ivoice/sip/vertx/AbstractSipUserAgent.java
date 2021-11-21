@@ -28,9 +28,11 @@ import javax.sip.message.MessageFactory;
 import javax.sip.message.Request;
 import javax.sip.message.Response;
 import java.text.ParseException;
+import java.time.Instant;
 import java.util.*;
 import java.util.function.Supplier;
 
+import static java.lang.String.format;
 import static tech.ivoice.javax.sip.SipClientTransaction.MAX_FORWARDS;
 
 /**
@@ -147,7 +149,59 @@ public abstract class AbstractSipUserAgent<T> extends AbstractVerticle {
         return dialog.createProvisionalResponse(Response.TRYING);
     }
 
-    protected final SIPResponse createSuccessResponse(String callId) {
+    protected final SIPResponse createOkWithSdp(String callId, int udpPort) {
+        SipDialog<T> dialog = findDialog(callId);
+        SIPRequest lastRequest = dialog.getLastRequest();
+        if (!lastRequest.getMethod().equals(Request.INVITE)) {
+            throw new IllegalStateException("Success response with SDP must be created on INVITE request");
+        }
+
+        try {
+            ContentTypeHeader contentTypeHeader = headerFactory.createContentTypeHeader("application", "sdp");
+
+            // origin https://datatracker.ietf.org/doc/html/rfc4566#section-5.2
+            String username = ((SipURI)lastRequest.getTo().getAddress().getURI()).getUser();
+            //noinspection UnnecessaryLocalVariable for readability
+            String sessId = callId;
+            long sessVer = Instant.now().getEpochSecond();
+            String netType = "IN";
+            String addrType = "IP4";
+            String addr = config.getHost();
+            String origin = format("o=%s %s %s %s %s %s", username, sessId, sessVer, netType, addrType, addr);
+
+            // connection data https://datatracker.ietf.org/doc/html/rfc4566#section-5.7
+            String connectionData = format("c=%s %s %s", netType, addrType, addr);
+
+            // https://datatracker.ietf.org/doc/html/rfc4566#section-5.14  m=<media> <port> <proto> <fmt>
+            // TODO sdp formats, telephone-event
+            int pcmuFmt = 0;
+            String mediaDescriptions = format("m=audio %s RTP/AVP %d", udpPort, pcmuFmt);
+
+            // https://datatracker.ietf.org/doc/html/rfc4566#section-6
+            String pcmuAttributes = format("a=rtpmap:%d PCMU/8000", pcmuFmt);
+            String ptime = "a=ptime:20";
+
+            String sdpData = String.join(
+                "\r\n",
+                "v=0",
+                origin,
+                "s=-",
+                connectionData,
+                "t=0 0",
+                mediaDescriptions,
+                pcmuAttributes,
+                ptime
+            );
+            byte[] contents = sdpData.getBytes();
+            SIPResponse response = dialog.createSuccessResponse(() -> "server-" + idGenerator.get());
+            response.setContent(contents, contentTypeHeader);
+            return response;
+        } catch (ParseException e) {
+            throw new IllegalArgumentException(e);
+        }
+    }
+
+    protected final SIPResponse createOk(String callId) {
         SipDialog<T> dialog = findDialog(callId);
         return dialog.createSuccessResponse(() -> "server-" + idGenerator.get());
     }

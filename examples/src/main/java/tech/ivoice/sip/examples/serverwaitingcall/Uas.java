@@ -23,14 +23,14 @@ public class Uas extends AbstractSipUserAgent<Void> {
     @Override
     protected void onInvite(SIPRequest invite) {
         String callId = invite.getCallId().getCallId();
-        SIPResponse ok = createSuccessResponse(callId);
+        SIPResponse ok = createOk(callId);
         sendResponse(ok);
     }
 
     @Override
     protected void onBye(SIPRequest bye) {
         String callId = bye.getCallId().getCallId();
-        SIPResponse ok = createSuccessResponse(callId);
+        SIPResponse ok = createOk(callId);
         sendResponse(ok);
     }
 }

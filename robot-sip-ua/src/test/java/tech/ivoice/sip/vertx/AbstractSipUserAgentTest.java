@@ -1,6 +1,7 @@
 package tech.ivoice.sip.vertx;
 
 import gov.nist.javax.sip.address.AddressFactoryImpl;
+import gov.nist.javax.sip.header.ContentType;
 import gov.nist.javax.sip.message.SIPRequest;
 import gov.nist.javax.sip.message.SIPResponse;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,6 +41,18 @@ class AbstractSipUserAgentTest {
             "Contact: <sip:Client@127.0.0.1:5080>\n" +
             "Content-Length: 0";
         assertEquals(expected, invite.toString().trim().replaceAll("\r", ""));
+    }
+
+    @Test
+    void createOkWithSdp() throws Exception {
+        SipURI targetSipUri = addressFactory.createSipURI("Server", "127.0.0.2:5082");
+        SIPRequest invite = sipVerticle.createInvite("Client", targetSipUri);
+        sipVerticle.onRequestReceived(invite);
+        SIPResponse ok = sipVerticle.createOkWithSdp(invite.getCallId().getCallId(), 8000);
+
+        assertEquals(new ContentType("application", "sdp"), ok.getContentTypeHeader());
+        String content = ok.getMessageContent();
+        assertFalse(content.isBlank());
     }
 
     @Test

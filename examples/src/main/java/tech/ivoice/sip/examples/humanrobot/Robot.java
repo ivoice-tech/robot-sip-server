@@ -35,7 +35,7 @@ public class Robot extends AbstractSipUserAgent<List<Robot.QA>> {
         // emulate delay 1 sec for scenario initialization
         Uni.createFrom().voidItem()
             .onItem().delayIt().by(Duration.of(1, ChronoUnit.SECONDS))
-            .map(itsTime -> createSuccessResponse(invite.getCallId().getCallId()))
+            .map(itsTime -> createOk(invite.getCallId().getCallId()))
             .subscribe().with(response -> {
                 setApplicationData(invite.getCallId().getCallId(), new ArrayList<>());
                 log.info(user + ": scenario initialized, sending OK");

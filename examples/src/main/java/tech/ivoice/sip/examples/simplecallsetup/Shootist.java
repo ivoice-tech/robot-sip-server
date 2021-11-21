@@ -68,7 +68,7 @@ public class Shootist extends AbstractSipUserAgent<Void> {
     @Override
     public void onBye(SIPRequest bye) {
         log.info(user + ": damn, you quick! Goodbye the mortal world!");
-        SIPResponse response = createSuccessResponse(bye.getCallId().getCallId());
+        SIPResponse response = createOk(bye.getCallId().getCallId());
         sendResponse(response);
     }
 

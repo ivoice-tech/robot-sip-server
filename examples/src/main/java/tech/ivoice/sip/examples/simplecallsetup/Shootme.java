@@ -36,7 +36,7 @@ public class Shootme extends AbstractSipUserAgent<Void> {
         Uni.createFrom().voidItem()
             .onItem().delayIt().by(Duration.ofSeconds(1))
             .subscribe().with(itsTime -> {
-                SIPResponse successResponse = createSuccessResponse(callId);
+                SIPResponse successResponse = createOk(callId);
                 sendResponse(successResponse);
             });
     }
@@ -59,7 +59,7 @@ public class Shootme extends AbstractSipUserAgent<Void> {
     @Override
     public void onBye(SIPRequest bye) {
         log.info(user + ": goodbye the mortal world!");
-        SIPResponse response = createSuccessResponse(bye.getCallId().getCallId());
+        SIPResponse response = createOk(bye.getCallId().getCallId());
         sendResponse(response);
     }
 }
