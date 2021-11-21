@@ -69,6 +69,9 @@ Implementation is very simple, because we implemented only needed SIP processing
 
 See examples module in the repository.
 
+Also see example with media (you can call on this robot from softphone and hear phrase):
+[example robot announcement](https://github.com/ivoice-tech/example-robot-announcement)
+
 # Contributing
 
 Project is hosted on gitlab: https://gitlab.com/ivoice-oss/robot-sip-server
