@@ -147,7 +147,7 @@ public abstract class AbstractSipUserAgent<T> extends AbstractVerticle {
         }
     }
 
-    protected final SIPResponse createTryingResponse(String callId) {
+    protected final SIPResponse createTrying(String callId) {
         SipDialog<T> dialog = findDialog(callId);
         return dialog.createProvisionalResponse(Response.TRYING);
     }

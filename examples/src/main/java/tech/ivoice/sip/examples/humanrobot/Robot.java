@@ -24,7 +24,7 @@ public class Robot extends AbstractSipUserAgent<List<Robot.QA>> {
     public void onInvite(SIPRequest invite) {
         String callId = invite.getCallId().getCallId();
 
-        SIPResponse provisionalResponse = createTryingResponse(callId);
+        SIPResponse provisionalResponse = createTrying(callId);
         sendResponse(provisionalResponse);
 
         initDialogScenario(invite);

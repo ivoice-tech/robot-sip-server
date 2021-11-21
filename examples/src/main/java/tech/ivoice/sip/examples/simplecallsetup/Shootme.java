@@ -28,7 +28,7 @@ public class Shootme extends AbstractSipUserAgent<Void> {
     public void onInvite(SIPRequest invite) {
         String callId = invite.getCallId().getCallId();
 
-        SIPResponse provisionalResponse = createTryingResponse(callId);
+        SIPResponse provisionalResponse = createTrying(callId);
         sendResponse(provisionalResponse);
 
         // send delayed OK responses
